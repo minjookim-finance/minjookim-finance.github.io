@@ -159,11 +159,6 @@ main {
   scroll-margin-top: 20px;
 }
 
-.intro + .section,
-.section + .section {
-  border-top: 1px solid var(--border);
-}
-
 .section > h2 {
   margin: 0 0 30px;
   display: flex;
