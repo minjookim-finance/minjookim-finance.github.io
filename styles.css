@@ -133,7 +133,8 @@ main {
 .intro-links {
   margin-top: 22px;
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 12px 24px;
 }
 
 .text-link {
