@@ -238,6 +238,10 @@ main {
   font-style: normal;
 }
 
+.paper-body .journal-status {
+  font-size: 14px;
+}
+
 .paper-body .authors a {
   color: inherit;
   border-bottom: 1px solid #c8cdd1;
