@@ -19,14 +19,16 @@ export default {
     if (request.headers.get("Origin") !== siteOrigin) return reply(403);
     if (!env.NTFY_TOPIC || !env.VISIT_LIMITER) return reply(503);
 
+    let stage = "rate-limit check";
     try {
       const key = request.headers.get("CF-Connecting-IP") || "unknown";
       const { success } = await env.VISIT_LIMITER.limit({ key });
       if (!success) return reply(429);
 
+      stage = "ntfy publish";
       const published = await fetch("https://ntfy.sh/", {
         method: "POST",
-        redirect: "error",
+        redirect: "manual",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           topic: env.NTFY_TOPIC,
@@ -35,9 +37,11 @@ export default {
         }),
         signal: AbortSignal.timeout(8000),
       });
-      if (published.status === 429) return reply(429);
-      return reply(published.ok ? 204 : 502);
-    } catch {
+      if (published.ok) return reply(204);
+      console.warn("ntfy returned HTTP", published.status);
+      return reply(published.status === 429 ? 429 : 502);
+    } catch (error) {
+      console.warn("Visit relay failed during", stage, error.name);
       return reply(502);
     }
   },
