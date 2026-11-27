@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://website-visit-relay.minjoo-kim-06b.workers.dev; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Website visits | Minjoo Kim</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./dashboard.css">
+  <script src="./dashboard.js" defer></script>
+</head>
+<body>
+  <header><div class="wrap mast"><a href="/">Minjoo Kim</a><button id="lock" type="button" hidden>Lock dashboard</button></div></header>
+  <main class="wrap">
+    <h1>Website visits</h1>
+    <form id="unlock" method="post">
+      <label for="key">Dashboard passphrase</label>
+      <div class="entry"><input id="key" type="password" autocomplete="current-password" required><button class="primary" type="submit">Open dashboard</button></div>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+    <div id="report" hidden>
+      <div class="toolbar">
+        <nav id="ranges" aria-label="Date range">
+          <button type="button" data-days="1">Today</button>
+          <button type="button" data-days="7" aria-pressed="true">Last 7 days</button>
+          <button type="button" data-days="30">Last 30 days</button>
+          <button type="button" data-days="90">Last 90 days</button>
+        </nav>
+        <span>US Central time</span>
+      </div>
+      <p id="range-note" role="status"></p>
+      <dl class="metrics">
+        <div><dt>Visits</dt><dd id="total">0</dd></div>
+        <div><dt>Cities</dt><dd id="city-count">0</dd></div>
+        <div><dt>Visits with a click</dt><dd id="click-share">–</dd></div>
+        <div><dt>Median time on site</dt><dd id="median">–</dd></div>
+      </dl>
+      <section aria-labelledby="map-heading">
+        <h2 id="map-heading">Visitor cities</h2>
+        <div id="map">
+          <img src="./world.png" alt="World map" width="1080" height="540">
+          <div id="dots"></div>
+        </div>
+        <p id="map-info" class="caption" aria-live="polite"></p>
+      </section>
+      <div class="grid">
+        <section><h2>Visits by day</h2><div id="daily"></div></section>
+        <section><h2>Visits by hour</h2><div id="hourly"></div></section>
+        <section><h2>Top sources</h2><div id="sources"></div></section>
+        <section><h2>Top networks</h2><div id="networks"></div></section>
+        <section><h2>Top cities</h2><div id="cities"></div></section>
+        <section><h2>Visitor actions</h2><div id="actions"></div></section>
+      </div>
+      <section><h2>Recent visits</h2><div id="recent" class="table-scroll"></div></section>
+      <button type="button" id="test-notification">Send test notification</button>
+      <p id="test-status" role="status" aria-live="polite"></p>
+    </div>
+  </main>
+</body>
+</html>

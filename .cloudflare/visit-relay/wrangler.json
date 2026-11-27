@@ -19,7 +19,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "visits"
+      "database_name": "visits",
+      "database_id": "f7903354-ed45-4ad9-85bc-3ef9c02a3baa"
     }
   ]
 }
