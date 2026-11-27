@@ -137,17 +137,21 @@ function showReport(data) {
   const durations = [];
   const recent = [];
   let clicked = 0;
+  let earlierVisits = 0;
   for (const visit of visits) {
     const date = new Date(visit.ts);
     const day = byDay.get(visit.day || dayFormat.format(date));
     if (!day) continue;
     day.count++;
     hours[Number(hourFormat.format(date))].count++;
-    durations.push(Math.max(0, Number(visit.seconds) || 0));
+    // Older Worker logs record arrivals, without the engagement fields sent by today's tracker.
+    const earlier = visit.seconds == null && visit.actions == null;
+    if (earlier) earlierVisits++;
+    else durations.push(Math.max(0, Number(visit.seconds) || 0));
     const city = cityName(visit);
     addCount(cities, city);
     addCount(networks, visit.network || 'Unknown');
-    addCount(sources, visit.referrer || 'Direct');
+    if (!earlier) addCount(sources, visit.referrer || 'Direct');
     const labels = rowActions(visit);
     if (labels.some((a) => /^(Opened PDF|Opened link|Clicked email link)/i.test(a.label))) clicked++;
     for (const action of labels) addCount(actions, action.label, Math.max(1, Number(action.count) || 1));
@@ -159,20 +163,28 @@ function showReport(data) {
     if (recent.length < 50) {
       const scroll = visit.scroll == null ? '' : ' · ' + visit.scroll + '% scrolled';
       const reached = visit.reached ? ' · ' + visit.reached : '';
-      recent.push([recentFormat.format(date), city || 'Unknown', visit.network || 'Unknown',
-        visit.referrer || 'Direct', visit.device || 'Unknown', visit.path || '/',
-        duration(visit.seconds) + scroll + reached, labels.map((a) => a.label + (a.count > 1 ? ' ×' + a.count : '')).join(' · ') || '—']);
+      const arrival = recentFormat.format(date) + (earlier ? ' · Earlier log' : '');
+      const activity = labels.map((a) => a.label + (a.count > 1 ? ' ×' + a.count : '')).join(' · ');
+      recent.push([arrival, city || 'Unknown', visit.network || 'Unknown',
+        earlier ? 'Not recorded' : visit.referrer || 'Direct', visit.device || 'Unknown', visit.path || (earlier ? '—' : '/'),
+        earlier ? 'Not recorded' : duration(visit.seconds) + scroll + reached, earlier ? 'Not recorded' : activity || '—']);
     }
   }
   durations.sort((a, b) => a - b);
   const n = durations.length;
   const middle = Math.floor(n / 2);
   const median = n % 2 ? durations[middle] : (durations[middle - 1] + durations[middle]) / 2;
-  byId('total').textContent = n.toLocaleString();
+  byId('total').textContent = (n + earlierVisits).toLocaleString();
   byId('city-count').textContent = cities.size.toLocaleString();
   byId('click-share').textContent = n ? Math.round(100 * clicked / n) + '%' : '—';
   byId('median').textContent = n ? duration(median) : '—';
-  byId('range-note').textContent = visits.length >= data.maxRows ? 'Showing the most recent ' + data.maxRows.toLocaleString() + ' visits.' : '';
+  const notes = [];
+  if (earlierVisits) {
+    notes.push(earlierVisits.toLocaleString() + (earlierVisits === 1 ? ' visit comes' : ' visits come') +
+      ' from earlier logs. Click and time metrics cover ' + n.toLocaleString() + (n === 1 ? ' visit' : ' visits') + ' with engagement tracking.');
+  }
+  if (visits.length >= data.maxRows) notes.push('Showing the most recent ' + data.maxRows.toLocaleString() + ' visits.');
+  byId('range-note').textContent = notes.join(' ');
   cityMap(points);
   chart('daily', 'Date', days);
   chart('hourly', 'Hour', hours);
